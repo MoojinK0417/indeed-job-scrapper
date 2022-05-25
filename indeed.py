@@ -1,11 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 
-LIMIT = 50
-URL = f"https://ca.indeed.com/jobs?q=python&l=Ontario&radius=100&limit={LIMIT}&vjk=369437712218a654"
+#LIMIT = 50
+# URL = f"https://ca.indeed.com/jobs?q=python&l=Ontario&radius=100&limit={LIMIT}&vjk=369437712218a654"
 
 
-def extract_indeed_pages():
+def extract_indeed_pages(URL):
 
     result = requests.get(URL)
     soup = BeautifulSoup(result.text, "html.parser")
@@ -33,12 +33,12 @@ def extract_job(html):
     return {'title':title, 'company': company, 'locations': location, 'link': f"https://ca.indeed.com/viewjob?jk={link}"}
 
 
-def extract_jobs(last_page):
+def extract_jobs(last_page, URL):
     jobs = []
     for page in range(last_page):
 
         print(f"Scrapping page {page}")
-        result = requests.get(f"{URL}&start={0*LIMIT}")
+        result = requests.get(f"{URL}&start={1+page}")
         soup = BeautifulSoup(result.text, "html.parser")
         results = soup.find_all("div", {"class": "job_seen_beacon"})
 
@@ -48,9 +48,11 @@ def extract_jobs(last_page):
 
     return jobs
 
-def get_jobs():
-    last_page = extract_indeed_pages()
-    jobs = extract_jobs(last_page)
+def get_jobs(word):
+    LIMIT = 50
+    URL = f"https://ca.indeed.com/jobs?q={word}&l=Ontario&radius=100&limit={LIMIT}&vjk=369437712218a654"
+    last_page = extract_indeed_pages(URL)
+    jobs = extract_jobs(last_page, URL)
     return jobs
 
 
